@@ -12,7 +12,7 @@ body {
     padding: 15px;
 }
 
-/* ================= 登入遮罩 ================= */
+/* ================= 登入 ================= */
 #loginPage {
     position: fixed;
     inset: 0;
@@ -30,7 +30,7 @@ body {
     border-radius: 15px;
 }
 
-/* ================= 主UI（完全不動） ================= */
+/* ================= UI（完全保留） ================= */
 .container {
     max-width: 520px;
     margin: auto;
@@ -40,9 +40,7 @@ body {
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
-h2 {
-    text-align: center;
-}
+h2 { text-align: center; }
 
 label {
     font-weight: bold;
@@ -70,15 +68,22 @@ button {
 
 .addBtn { background: #28a745; color: white; }
 
-/* ================= 新增：頂部狀態列（登出用） ================= */
 #topBar {
     display:none;
     justify-content: space-between;
     align-items: center;
-    background: #eee;
-    padding: 10px;
+    background:#eee;
+    padding:10px;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+
+.card {
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-top: 15px;
     border-radius: 10px;
-    margin-bottom: 10px;
+    background: #fafafa;
 }
 
 #adminPanel {
@@ -101,37 +106,27 @@ button {
 
 <body>
 
-<!-- ================= 登入頁 ================= -->
+<!-- ================= 登入 ================= -->
 <div id="loginPage">
     <div class="login-box">
-        <h3>🔐 車隊系統登入</h3>
-
+        <h3>🔐 登入</h3>
         <input id="user" placeholder="帳號">
         <input id="pass" type="password" placeholder="密碼">
-
         <button onclick="login()">登入</button>
-
-        <p style="font-size:12px;color:gray;">
-            admin1 / 1234<br>
-            admin2 / 5678<br>
-            admin3 / 9999<br>
-            user1 / 0000
-        </p>
     </div>
 </div>
 
-<!-- ================= 主系統（UI完全不動） ================= -->
+<!-- ================= 主系統 ================= -->
 <div class="container" id="app">
 
 <h2>🚚 小太陽車隊填寫系統</h2>
 
-<!-- 🔥 登入狀態 + 登出 -->
 <div id="topBar">
-    <div>👤 登入：<span id="loginName"></span></div>
+    <div>👤 <span id="loginName"></span></div>
     <button onclick="logout()" style="width:auto;padding:8px 12px;">登出</button>
 </div>
 
-<label>📅 日期</label>
+<label>日期</label>
 <input type="date" id="date">
 
 <label>車牌</label>
@@ -156,12 +151,12 @@ button {
 
 <label>收貨站</label>
 <select id="receive">
-    <option value="" disabled selected>請選擇收貨站</option>
+    <option value="" disabled selected>請先選發貨站</option>
 </select>
 
 <label>料名</label>
 <select id="material">
-    <option value="" disabled selected>請選擇料名</option>
+    <option value="" disabled selected>請先選發貨站</option>
 </select>
 
 <label>噸數</label>
@@ -171,7 +166,6 @@ button {
 
 <div id="list"></div>
 
-<!-- ================= 管理員 ================= -->
 <div id="adminPanel">
     <h3>👑 管理後台</h3>
     <div id="adminList"></div>
@@ -181,122 +175,179 @@ button {
 
 <script>
 
-let currentUser = null;
-let trips = [];
+let currentUser=null;
+let trips=[];
 
-const users = {
-    "admin1":"1234",
-    "admin2":"5678",
-    "admin3":"9999",
-    "user1":"0000"
+const users={
+"admin1":"1234",
+"admin2":"5678",
+"admin3":"9999",
+"user1":"0000"
+};
+
+/* ================= 防呆：料名 ================= */
+const materialData={
+"亞洲水泥":["Ⅰ型水泥"],
+"台灣水泥":["Ⅰ型水泥","Ⅱ型水泥","IL型水泥"],
+"東南水泥":["Ⅰ型水泥"],
+"永覲工業":["爐石粉"],
+"晉瑜水泥":["Ⅰ型水泥","高爐水泥"],
+"環球水泥":["Ⅰ型水泥"]
+};
+
+/* ================= 防呆：收貨站（你要的核心） ================= */
+const receiveMap={
+"亞洲水泥":["亞東安平","亞東永康"],
+"台灣水泥":["鳳勝高樹"],
+"東南水泥":["天誠預拌","信濃預拌"],
+"永覲工業":["亞東安平"],
+"晉瑜水泥":["鳳勝高樹"],
+"環球水泥":["東南高良"]
 };
 
 function isAdmin(u){
-    return ["admin1","admin2","admin3"].includes(u);
+return ["admin1","admin2","admin3"].includes(u);
 }
 
 /* ================= 登入 ================= */
 function login(){
 
-    let u = document.getElementById("user").value;
-    let p = document.getElementById("pass").value;
+let u=document.getElementById("user").value;
+let p=document.getElementById("pass").value;
 
-    if(!users[u] || users[u] !== p){
-        alert("登入失敗");
-        return;
-    }
+if(!users[u]||users[u]!==p){
+alert("錯誤");
+return;
+}
 
-    currentUser = u;
+currentUser=u;
 
-    document.getElementById("loginPage").style.display = "none";
-    document.getElementById("app").style.display = "block";
+document.getElementById("loginPage").style.display="none";
+document.getElementById("app").style.display="block";
 
-    document.getElementById("loginName").innerText = u;
-    document.getElementById("topBar").style.display = "flex";
+document.getElementById("loginName").innerText=u;
+document.getElementById("topBar").style.display="flex";
 
-    init();
-
-    render();
-    renderAdmin();
+init();
+render();
+renderAdmin();
 }
 
 /* ================= 登出 ================= */
 function logout(){
-    location.reload();
+location.reload();
 }
 
 /* ================= 初始化 ================= */
 function init(){
-    document.getElementById("date").value =
-    new Date().toISOString().split("T")[0];
+document.getElementById("date").value=
+new Date().toISOString().split("T")[0];
 }
+
+/* ================= 發貨站變更（料名 + 收貨站） ================= */
+document.getElementById("send").addEventListener("change",function(){
+
+let send=this.value;
+
+/* 料名 */
+let m=document.getElementById("material");
+m.innerHTML='<option disabled selected>請選料名</option>';
+
+if(materialData[send]){
+materialData[send].forEach(v=>{
+let o=document.createElement("option");
+o.value=v;o.text=v;
+m.appendChild(o);
+});
+}
+
+/* 收貨站 */
+let r=document.getElementById("receive");
+r.innerHTML='<option disabled selected>請選收貨站</option>';
+
+if(receiveMap[send]){
+receiveMap[send].forEach(v=>{
+let o=document.createElement("option");
+o.value=v;o.text=v;
+r.appendChild(o);
+});
+}
+});
 
 /* ================= 新增車次 ================= */
 function addTrip(){
 
-    let t = {
-        date: document.getElementById("date").value,
-        car: document.getElementById("car").value,
-        send: document.getElementById("send").value,
-        receive: document.getElementById("receive").value,
-        material: document.getElementById("material").value,
-        weight: document.getElementById("weight").value
-    };
+let send=document.getElementById("send").value;
+let receive=document.getElementById("receive").value;
 
-    trips.push(t);
-
-    render();
-    renderAdmin();
+/* 🔥 防呆：收貨站驗證 */
+if(receiveMap[send] && !receiveMap[send].includes(receive)){
+alert("收貨站與發貨站不符");
+return;
 }
 
-/* ================= 使用者列表 ================= */
+let t={
+date:document.getElementById("date").value,
+car:document.getElementById("car").value,
+send,
+receive,
+material:document.getElementById("material").value,
+weight:document.getElementById("weight").value
+};
+
+trips.push(t);
+
+render();
+renderAdmin();
+}
+
+/* ================= 列表 ================= */
 function render(){
 
-    let list = document.getElementById("list");
-    list.innerHTML = "";
+let list=document.getElementById("list");
+list.innerHTML="";
 
-    trips.forEach((t,i)=>{
-        list.innerHTML += `
-        <div class="card">
-            ${i+1}. ${t.date}<br>
-            ${t.car}<br>
-            ${t.send} → ${t.receive}<br>
-            ${t.material}<br>
-            ${t.weight}
-        </div>`;
-    });
+trips.forEach((t,i)=>{
+list.innerHTML+=`
+<div class="card">
+${i+1}. ${t.date}<br>
+${t.car}<br>
+${t.send} → ${t.receive}<br>
+${t.material}<br>
+${t.weight}
+</div>`;
+});
 }
 
 /* ================= 管理員 ================= */
 function renderAdmin(){
 
-    let panel = document.getElementById("adminPanel");
-    let box = document.getElementById("adminList");
+let box=document.getElementById("adminList");
+let panel=document.getElementById("adminPanel");
 
-    box.innerHTML = "";
+box.innerHTML="";
 
-    if(!isAdmin(currentUser)){
-        panel.style.display = "none";
-        return;
-    }
+if(!isAdmin(currentUser)){
+panel.style.display="none";
+return;
+}
 
-    panel.style.display = "block";
+panel.style.display="block";
 
-    trips.forEach((t,i)=>{
-        box.innerHTML += `
-        <div class="admin-card">
-            #${i+1} ${t.car}<br>
-            ${t.date}<br>
-            <button onclick="del(${i})">刪除</button>
-        </div>`;
-    });
+trips.forEach((t,i)=>{
+box.innerHTML+=`
+<div class="admin-card">
+#${i+1} ${t.car}<br>
+<button onclick="del(${i})">刪除</button>
+</div>`;
+});
 }
 
 /* ================= 刪除 ================= */
 function del(i){
-    trips.splice(i,1);
-    render();
-    renderAdmin();
+trips.splice(i,1);
+render();
+renderAdmin();
 }
 
 </script>
