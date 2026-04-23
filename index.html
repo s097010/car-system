@@ -3,18 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>小太陽車隊系統</title>
+<title>小太陽車隊填寫系統</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#007bff">
 
 <style>
 body {
-    font-family: Arial;
+    font-family: Arial, sans-serif;
     background: #f2f2f2;
     padding: 15px;
 }
 
-/* ============ 登入畫面 ============ */
+/* ================= 登入畫面 ================= */
 #loginPage {
-    max-width: 400px;
+    max-width: 420px;
     margin: 100px auto;
     background: white;
     padding: 20px;
@@ -22,9 +25,8 @@ body {
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
 
-/* ============ 主系統 ============ */
 #app {
-    display: none; /* 🔴 一開始完全隱藏 */
+    display: none;
     max-width: 520px;
     margin: auto;
     background: white;
@@ -32,19 +34,35 @@ body {
     border-radius: 15px;
 }
 
+label {
+    font-weight: bold;
+    display:block;
+    margin-top:10px;
+}
+
 input, select {
     width: 100%;
     padding: 10px;
-    margin-top: 8px;
+    margin-top: 5px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
 }
 
 button {
     width: 100%;
     padding: 12px;
     margin-top: 10px;
+    border: none;
+    border-radius: 10px;
     background: #007bff;
     color: white;
-    border: none;
+    font-size: 16px;
+}
+
+.card {
+    background: #f7f7f7;
+    padding: 10px;
+    margin-top: 10px;
     border-radius: 10px;
 }
 </style>
@@ -54,10 +72,10 @@ button {
 
 <!-- ================= 登入頁 ================= -->
 <div id="loginPage">
-    <h2>🔐 登入系統</h2>
+    <h2>🔐 車隊系統登入</h2>
 
-    <input id="user" placeholder="帳號">
-    <input id="pass" type="password" placeholder="密碼">
+    <input id="username" placeholder="帳號">
+    <input id="password" type="password" placeholder="密碼">
 
     <button onclick="login()">登入</button>
 
@@ -69,35 +87,96 @@ button {
     </p>
 </div>
 
-<!-- ================= 主系統 ================= -->
+<!-- ================= 主系統（完全保留你原本架構） ================= -->
 <div id="app">
 
-<h2>🚚 車隊系統</h2>
+<h2>🚚 小太陽車隊填寫系統</h2>
 
+<!-- 日期 -->
+<label>📅 日期</label>
+<input type="date" id="date">
+
+<!-- 車牌 -->
 <label>車牌</label>
 <select id="car">
+    <option value="" disabled selected>請選擇車牌</option>
     <option>XO-249</option>
     <option>KLE-9999</option>
+    <option>KLH-1568</option>
+    <option>KLG-6028</option>
 </select>
 
+<!-- 發貨站 -->
 <label>發貨站</label>
 <select id="send">
+    <option value="" disabled selected>請選擇發貨站</option>
     <option>亞洲水泥</option>
     <option>台灣水泥</option>
+    <option>東南水泥</option>
+    <option>永覲工業</option>
+    <option>晉瑜水泥</option>
+    <option>環球水泥</option>
 </select>
 
-<label>噸數</label>
-<input id="weight">
+<!-- 收貨站 -->
+<label>收貨站</label>
+<select id="receive">
+    <option value="" disabled selected>請選擇收貨站</option>
+</select>
 
-<button onclick="add()">新增</button>
+<!-- 料名 -->
+<label>料名</label>
+<select id="material">
+    <option value="" disabled selected>請選擇料名</option>
+</select>
+
+<!-- 噸數 -->
+<label>噸數</label>
+<input type="number" id="weight">
+
+<hr>
+
+<h3>🧴 尿素</h3>
+<label>品牌</label>
+<select id="ureaBrand">
+    <option value="" disabled selected>請選擇</option>
+    <option>品牌A</option>
+    <option>品牌B</option>
+</select>
+
+<label>公升</label>
+<input type="number" id="ureaL">
+
+<label>金額</label>
+<input type="number" id="ureaMoney">
+
+<hr>
+
+<h3>⛽ 油料</h3>
+<label>加油站</label>
+<select id="fuelStation">
+    <option value="" disabled selected>請選擇</option>
+    <option>中油</option>
+    <option>速邁樂</option>
+    <option>台糖</option>
+</select>
+
+<label>公升</label>
+<input type="number" id="fuelL">
+
+<label>金額</label>
+<input type="number" id="fuelMoney">
+
+<button onclick="addTrip()">➕ 新增車次</button>
 
 <div id="list"></div>
+<div id="result"></div>
 
 </div>
 
 <script>
 
-/* ================= 帳號 ================= */
+/* ================= 帳號系統 ================= */
 const users = {
     "admin1":"1234",
     "admin2":"5678",
@@ -105,44 +184,108 @@ const users = {
     "user1":"0000"
 };
 
-let loginUser = null;
-let data = [];
+let currentUser = null;
+let trips = [];
 
 /* ================= 登入 ================= */
 function login() {
 
-    let u = document.getElementById("user").value;
-    let p = document.getElementById("pass").value;
+    let u = document.getElementById("username").value;
+    let p = document.getElementById("password").value;
 
     if (!users[u] || users[u] !== p) {
         alert("帳號或密碼錯誤");
         return;
     }
 
-    loginUser = u;
+    currentUser = u;
 
-    // 🔴 隱藏登入頁
     document.getElementById("loginPage").style.display = "none";
-
-    // 🟢 顯示主系統
     document.getElementById("app").style.display = "block";
 
-    alert("登入成功：" + u);
+    init();
 }
 
-/* ================= 新增 ================= */
-function add() {
+/* ================= 初始化 ================= */
+function init() {
+    document.getElementById("date").value =
+        new Date().toISOString().split('T')[0];
+}
 
-    if (!loginUser) {
+/* ================= 原本功能完全保留 ================= */
+const materialData = {
+    "亞洲水泥": ["Ⅰ型水泥"],
+    "台灣水泥": ["Ⅰ型水泥","Ⅱ型水泥","IL型水泥"],
+    "東南水泥": ["Ⅰ型水泥"],
+    "永覲工業": ["爐石粉"],
+    "晉瑜水泥": ["Ⅰ型水泥","Ⅱ型水泥","高爐水泥"],
+    "環球水泥": ["Ⅰ型水泥"]
+};
+
+const receiveMap = {
+    "亞洲水泥": ["亞東安平","亞東永康"],
+    "台灣水泥": ["鳳勝高樹"],
+    "東南水泥": ["天誠預拌","信濃預拌","東南高良"],
+    "永覲工業": ["亞東永康","亞東安平"],
+    "晉瑜水泥": ["亞東安平","鳳勝高樹"],
+    "環球水泥": ["東南高良"]
+};
+
+document.getElementById("send").addEventListener("change", function(){
+    updateMaterial();
+    updateReceive();
+});
+
+function updateMaterial() {
+    let send = document.getElementById("send").value;
+    let material = document.getElementById("material");
+
+    material.innerHTML = '<option value="">請選擇料名</option>';
+
+    if (!materialData[send]) return;
+
+    materialData[send].forEach(m=>{
+        let o = document.createElement("option");
+        o.text = m;
+        o.value = m;
+        material.appendChild(o);
+    });
+}
+
+function updateReceive() {
+    let send = document.getElementById("send").value;
+    let receive = document.getElementById("receive");
+
+    receive.innerHTML = '<option value="">請選擇收貨站</option>';
+
+    if (!receiveMap[send]) return;
+
+    receiveMap[send].forEach(r=>{
+        let o = document.createElement("option");
+        o.text = r;
+        o.value = r;
+        receive.appendChild(o);
+    });
+}
+
+/* ================= 新增車次（加登入限制） ================= */
+function addTrip() {
+
+    if (!currentUser) {
         alert("請先登入");
         return;
     }
 
-    let car = document.getElementById("car").value;
-    let send = document.getElementById("send").value;
-    let weight = document.getElementById("weight").value;
+    let data = {
+        date: document.getElementById("date").value,
+        car: document.getElementById("car").value,
+        send: document.getElementById("send").value,
+        receive: document.getElementById("receive").value,
+        material: document.getElementById("material").value,
+        weight: document.getElementById("weight").value
+    };
 
-    data.push({car, send, weight});
+    trips.push(data);
 
     render();
 }
@@ -153,10 +296,14 @@ function render() {
     let list = document.getElementById("list");
     list.innerHTML = "";
 
-    data.forEach((d,i)=>{
+    trips.forEach((t,i)=>{
         list.innerHTML += `
-        <div style="margin-top:10px;padding:10px;background:#eee;border-radius:10px;">
-            ${i+1}. ${d.car} / ${d.send} / ${d.weight}
+        <div class="card">
+            ${i+1}. ${t.date}<br>
+            ${t.car}<br>
+            ${t.send} → ${t.receive}<br>
+            ${t.material}<br>
+            ${t.weight}
         </div>`;
     });
 }
