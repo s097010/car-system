@@ -28,10 +28,9 @@ body {
     background: white;
     padding: 20px;
     border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
 
-/* ================= 你原本 UI（完全不動） ================= */
+/* ================= 主UI（完全不動） ================= */
 .container {
     max-width: 520px;
     margin: auto;
@@ -70,17 +69,18 @@ button {
 }
 
 .addBtn { background: #28a745; color: white; }
-.genBtn { background: #007bff; color: white; }
 
-.card {
-    border: 1px solid #ddd;
-    padding: 15px;
-    margin-top: 15px;
+/* ================= 新增：頂部狀態列（登出用） ================= */
+#topBar {
+    display:none;
+    justify-content: space-between;
+    align-items: center;
+    background: #eee;
+    padding: 10px;
     border-radius: 10px;
-    background: #fafafa;
+    margin-bottom: 10px;
 }
 
-/* ================= 管理員區 ================= */
 #adminPanel {
     display:none;
     margin-top:20px;
@@ -101,7 +101,7 @@ button {
 
 <body>
 
-<!-- ================= 登入 ================= -->
+<!-- ================= 登入頁 ================= -->
 <div id="loginPage">
     <div class="login-box">
         <h3>🔐 車隊系統登入</h3>
@@ -120,10 +120,16 @@ button {
     </div>
 </div>
 
-<!-- ================= 主系統（UI完全保留） ================= -->
+<!-- ================= 主系統（UI完全不動） ================= -->
 <div class="container" id="app">
 
 <h2>🚚 小太陽車隊填寫系統</h2>
+
+<!-- 🔥 登入狀態 + 登出 -->
+<div id="topBar">
+    <div>👤 登入：<span id="loginName"></span></div>
+    <button onclick="logout()" style="width:auto;padding:8px 12px;">登出</button>
+</div>
 
 <label>📅 日期</label>
 <input type="date" id="date">
@@ -161,44 +167,11 @@ button {
 <label>噸數</label>
 <input id="weight">
 
-<hr>
-
-<h3>🧴 尿素</h3>
-<label>品牌</label>
-<select id="ureaBrand">
-    <option value="" disabled selected>請選擇</option>
-    <option>品牌A</option>
-    <option>品牌B</option>
-</select>
-
-<label>公升</label>
-<input id="ureaL">
-
-<label>金額</label>
-<input id="ureaMoney">
-
-<hr>
-
-<h3>⛽ 油料</h3>
-<label>加油站</label>
-<select id="fuelStation">
-    <option value="" disabled selected>請選擇</option>
-    <option>中油</option>
-    <option>速邁樂</option>
-    <option>台糖</option>
-</select>
-
-<label>公升</label>
-<input id="fuelL">
-
-<label>金額</label>
-<input id="fuelMoney">
-
 <button class="addBtn" onclick="addTrip()">➕ 新增車次</button>
 
 <div id="list"></div>
 
-<!-- ================= 管理員區 ================= -->
+<!-- ================= 管理員 ================= -->
 <div id="adminPanel">
     <h3>👑 管理後台</h3>
     <div id="adminList"></div>
@@ -229,7 +202,7 @@ function login(){
     let p = document.getElementById("pass").value;
 
     if(!users[u] || users[u] !== p){
-        alert("帳號或密碼錯誤");
+        alert("登入失敗");
         return;
     }
 
@@ -238,27 +211,30 @@ function login(){
     document.getElementById("loginPage").style.display = "none";
     document.getElementById("app").style.display = "block";
 
+    document.getElementById("loginName").innerText = u;
+    document.getElementById("topBar").style.display = "flex";
+
     init();
 
-    updateAdminPanel();
     render();
+    renderAdmin();
+}
+
+/* ================= 登出 ================= */
+function logout(){
+    location.reload();
 }
 
 /* ================= 初始化 ================= */
 function init(){
     document.getElementById("date").value =
-        new Date().toISOString().split('T')[0];
+    new Date().toISOString().split("T")[0];
 }
 
 /* ================= 新增車次 ================= */
 function addTrip(){
 
-    if(!currentUser){
-        alert("請先登入");
-        return;
-    }
-
-    let data = {
+    let t = {
         date: document.getElementById("date").value,
         car: document.getElementById("car").value,
         send: document.getElementById("send").value,
@@ -267,10 +243,10 @@ function addTrip(){
         weight: document.getElementById("weight").value
     };
 
-    trips.push(data);
+    trips.push(t);
 
     render();
-    updateAdminPanel();
+    renderAdmin();
 }
 
 /* ================= 使用者列表 ================= */
@@ -291,8 +267,8 @@ function render(){
     });
 }
 
-/* ================= 管理員後台（修正核心） ================= */
-function updateAdminPanel(){
+/* ================= 管理員 ================= */
+function renderAdmin(){
 
     let panel = document.getElementById("adminPanel");
     let box = document.getElementById("adminList");
@@ -309,19 +285,18 @@ function updateAdminPanel(){
     trips.forEach((t,i)=>{
         box.innerHTML += `
         <div class="admin-card">
-            <b>#${i+1}</b><br>
-            ${t.car} / ${t.send}<br>
+            #${i+1} ${t.car}<br>
             ${t.date}<br>
-            <button onclick="delTrip(${i})">刪除</button>
+            <button onclick="del(${i})">刪除</button>
         </div>`;
     });
 }
 
 /* ================= 刪除 ================= */
-function delTrip(i){
+function del(i){
     trips.splice(i,1);
     render();
-    updateAdminPanel();
+    renderAdmin();
 }
 
 </script>
