@@ -3,347 +3,196 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>小太陽車隊填寫系統</title>
+<title>小太陽車隊系統</title>
 
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#007bff">
 
 <style>
 body {
-    font-family: Arial, sans-serif;
+    font-family: Arial;
     background: #f2f2f2;
     padding: 15px;
 }
 
+/* ================= 登入頁 ================= */
+.login-box {
+    max-width: 400px;
+    margin: 80px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    border: none;
+    border-radius: 10px;
+    background: #007bff;
+    color: white;
+    font-size: 16px;
+}
+
+/* ================= 主系統 ================= */
 .container {
     max-width: 520px;
     margin: auto;
     background: white;
     padding: 20px;
     border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    display: none; /* 🔴 未登入隱藏 */
 }
 
-h2 {
-    text-align: center;
-}
-
-label {
-    font-weight: bold;
-    margin-top: 10px;
-    display: block;
-}
-
-select, input {
-    width: 100%;
-    padding: 12px;
-    margin-top: 5px;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-    font-size: 16px;
-}
-
-select:invalid {
-    color: gray;
-}
-
-button {
-    width: 100%;
-    padding: 15px;
-    margin-top: 15px;
-    border: none;
-    border-radius: 10px;
-    font-size: 18px;
-    cursor: pointer;
-}
-
-.addBtn {
-    background: #28a745;
-    color: white;
-}
-
-.genBtn {
-    background: #007bff;
-    color: white;
-}
-
-.result {
-    margin-top: 20px;
-    padding: 15px;
-    background: #e9f5ff;
-    border-radius: 10px;
-    white-space: pre-line;
-}
+label { font-weight: bold; }
+select, input { width: 100%; padding: 10px; margin-top: 5px; }
 
 .card {
-    border: 1px solid #ddd;
-    padding: 15px;
-    margin-top: 15px;
+    background: #f9f9f9;
+    padding: 10px;
+    margin-top: 10px;
     border-radius: 10px;
-    background: #fafafa;
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<!-- ================= 登入畫面 ================= -->
+<div class="login-box" id="loginBox">
+    <h2>🔐 車隊系統登入</h2>
 
-<!-- ================= 登入區 ================= -->
-<h3>🔐 登入系統</h3>
+    <input id="username" placeholder="帳號">
+    <input id="password" type="password" placeholder="密碼">
 
-<label>身份</label>
-<select id="role">
-    <option value="" disabled selected>請選擇身份</option>
-    <option value="admin">管理員</option>
-    <option value="driver">司機</option>
-</select>
+    <button onclick="login()">登入</button>
+</div>
 
-<button class="addBtn" onclick="login()">登入</button>
+<!-- ================= 主系統 ================= -->
+<div class="container" id="mainApp">
 
-<hr>
+<h2>🚚 小太陽車隊系統</h2>
 
-<h2>🚚 小太陽車隊填寫系統</h2>
-
-<!-- 日期 -->
 <label>📅 日期</label>
 <input type="date" id="date">
 
-<!-- 車牌 -->
 <label>車牌</label>
 <select id="car">
-    <option value="" disabled selected>請選擇車牌</option>
     <option>XO-249</option>
     <option>KLE-9999</option>
     <option>KLH-1568</option>
-    <option>KLG-6028</option>
 </select>
 
-<!-- 發貨站 -->
 <label>發貨站</label>
 <select id="send">
-    <option value="" disabled selected>請選擇發貨站</option>
     <option>亞洲水泥</option>
     <option>台灣水泥</option>
-    <option>東南水泥</option>
-    <option>永覲工業</option>
-    <option>晉瑜水泥</option>
-    <option>環球水泥</option>
 </select>
 
-<!-- 收貨站 -->
 <label>收貨站</label>
-<select id="receive">
-    <option value="" disabled selected>請選擇收貨站</option>
-</select>
+<select id="receive"></select>
 
-<!-- 料名 -->
 <label>料名</label>
-<select id="material">
-    <option value="" disabled selected>請先選發貨站</option>
-</select>
+<select id="material"></select>
 
-<!-- 噸數 -->
 <label>噸數</label>
-<input type="number" id="weight">
+<input id="weight">
 
-<hr>
-
-<h3>🧴 尿素</h3>
-<label>品牌</label>
-<select id="ureaBrand">
-    <option value="" disabled selected>請選擇</option>
-    <option>品牌A</option>
-    <option>品牌B</option>
-</select>
-
-<label>公升</label>
-<input type="number" id="ureaL">
-
-<label>金額</label>
-<input type="number" id="ureaMoney">
-
-<hr>
-
-<h3>⛽ 油料</h3>
-<label>加油站</label>
-<select id="fuelStation">
-    <option value="" disabled selected>請選擇</option>
-    <option>中油</option>
-    <option>速邁樂</option>
-    <option>台糖</option>
-</select>
-
-<label>公升</label>
-<input type="number" id="fuelL">
-
-<label>金額</label>
-<input type="number" id="fuelMoney">
-
-<button class="addBtn" onclick="addTrip()">➕ 新增車次</button>
-<button class="genBtn" onclick="generateAll()">📋 產生全部</button>
+<button onclick="addTrip()">➕ 新增車次</button>
 
 <div id="list"></div>
-<div class="result" id="result"></div>
 
 </div>
 
 <script>
 
-let userRole = null;
+/* ================= 帳號資料 ================= */
+const users = {
+    "admin1": {password:"1234", role:"admin"},
+    "admin2": {password:"5678", role:"admin"},
+    "admin3": {password:"9999", role:"admin"},
+    "user1":  {password:"0000", role:"user"}
+};
+
+let currentUser = null;
 let trips = [];
-
-const materialData = {
-    "亞洲水泥": ["Ⅰ型水泥"],
-    "台灣水泥": ["Ⅰ型水泥", "Ⅱ型水泥", "IL型水泥"],
-    "東南水泥": ["Ⅰ型水泥"],
-    "永覲工業": ["爐石粉"],
-    "晉瑜水泥": ["Ⅰ型水泥", "Ⅱ型水泥", "高爐水泥"],
-    "環球水泥": ["Ⅰ型水泥"]
-};
-
-const receiveMap = {
-    "亞洲水泥": ["亞東安平", "亞東永康"],
-    "台灣水泥": ["鳳勝高樹"],
-    "東南水泥": ["天誠預拌","信濃預拌","東南高良"],
-    "永覲工業": ["亞東永康","亞東安平"],
-    "晉瑜水泥": ["亞東安平","鳳勝高樹"],
-    "環球水泥": ["東南高良"]
-};
 
 /* ================= 登入 ================= */
 function login() {
-    userRole = document.getElementById("role").value;
-    if (!userRole) {
-        alert("請選擇身份");
+
+    let u = document.getElementById("username").value;
+    let p = document.getElementById("password").value;
+
+    if (!users[u] || users[u].password !== p) {
+        alert("帳號或密碼錯誤");
         return;
     }
-    alert("登入成功：" + userRole);
+
+    currentUser = users[u];
+
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("mainApp").style.display = "block";
+
+    alert("登入成功：" + currentUser.role);
+
+    init();
 }
 
 /* ================= 初始化 ================= */
-window.onload = function () {
-    let today = new Date().toISOString().split('T')[0];
-    document.getElementById("date").value = today;
+function init() {
 
-    updateMaterial();
-    updateReceive();
-};
+    document.getElementById("date").value =
+        new Date().toISOString().split('T')[0];
 
-document.getElementById("send").addEventListener("change", function () {
-    updateMaterial();
-    updateReceive();
-});
-
-/* ================= 料名 ================= */
-function updateMaterial() {
-    let send = document.getElementById("send").value;
-    let material = document.getElementById("material");
-
-    material.innerHTML = '<option value="" disabled selected>請選擇料名</option>';
-
-    if (!materialData[send]) return;
-
-    materialData[send].forEach(item => {
-        let opt = document.createElement("option");
-        opt.value = item;
-        opt.text = item;
-        material.appendChild(opt);
-    });
 }
 
-/* ================= 收貨站 ================= */
-function updateReceive() {
-    let send = document.getElementById("send").value;
-    let receive = document.getElementById("receive");
-
-    receive.innerHTML = '<option value="" disabled selected>請選擇收貨站</option>';
-
-    if (!receiveMap[send]) return;
-
-    receiveMap[send].forEach(item => {
-        let opt = document.createElement("option");
-        opt.value = item;
-        opt.text = item;
-        receive.appendChild(opt);
-    });
-}
-
-/* ================= 新增車次 ================= */
+/* ================= 新增車次（登入後才可） ================= */
 function addTrip() {
 
-    if (!userRole) {
+    if (!currentUser) {
         alert("請先登入");
         return;
     }
 
-    let date = document.getElementById("date").value;
     let car = document.getElementById("car").value;
     let send = document.getElementById("send").value;
-    let receive = document.getElementById("receive").value;
-    let material = document.getElementById("material").value;
     let weight = document.getElementById("weight").value;
 
-    if (!date || !car || !send || !receive || !material || !weight) {
-        alert("請完整填寫");
+    if (!car || !send || !weight) {
+        alert("請填資料");
         return;
     }
 
-    if (!receiveMap[send].includes(receive)) {
-        alert("收貨站錯誤");
-        return;
-    }
+    trips.push({car, send, weight});
 
-    trips.push({
-        date, car, send, receive, material, weight
-    });
-
-    renderList();
+    render();
 }
 
 /* ================= 顯示 ================= */
-function renderList() {
+function render() {
 
     let list = document.getElementById("list");
     list.innerHTML = "";
 
-    trips.forEach((t, i) => {
+    trips.forEach((t,i)=>{
         list.innerHTML += `
         <div class="card">
-            📅 ${t.date}<br>
-            🚚 車次 ${i+1}<br>
+            車次 ${i+1}<br>
             車牌：${t.car}<br>
             發貨：${t.send}<br>
-            收貨：${t.receive}<br>
-            料名：${t.material}<br>
             噸數：${t.weight}
         </div>`;
     });
-}
-
-/* ================= 匯出 ================= */
-function generateAll() {
-
-    if (trips.length === 0) {
-        alert("沒有資料");
-        return;
-    }
-
-    let text = "";
-
-    trips.forEach((t,i)=>{
-        text += `日期：${t.date}
-車次 ${i+1}
-車牌：${t.car}
-發貨：${t.send}
-收貨：${t.receive}
-料名：${t.material}
-噸數：${t.weight}
-
-`;
-    });
-
-    document.getElementById("result").innerText = text;
 }
 
 </script>
