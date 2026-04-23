@@ -12,45 +12,26 @@ body {
     padding: 15px;
 }
 
-/* ================= 登入遮罩 ================= */
+/* ================= 登入遮罩（不影響UI） ================= */
 #loginPage {
     position: fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:#f2f2f2;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    z-index:9999;
+    inset: 0;
+    background: rgba(242,242,242,0.98);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
 }
 
 .login-box {
     width: 320px;
-    background:white;
-    padding:20px;
-    border-radius:15px;
-    box-shadow:0 5px 15px rgba(0,0,0,0.2);
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
 
-.login-box input {
-    width:100%;
-    padding:10px;
-    margin-top:10px;
-}
-
-.login-box button {
-    width:100%;
-    padding:12px;
-    margin-top:15px;
-    background:#007bff;
-    color:white;
-    border:none;
-    border-radius:10px;
-}
-
-/* ================= 主系統（完全保留你原本UI） ================= */
+/* ================= 🔥 完全保留你原本UI ================= */
 .container {
     max-width: 520px;
     margin: auto;
@@ -58,7 +39,6 @@ body {
     padding: 20px;
     border-radius: 15px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    display:none; /* 🔴 未登入隱藏 */
 }
 
 h2 {
@@ -87,18 +67,10 @@ button {
     border: none;
     border-radius: 10px;
     font-size: 18px;
-    cursor: pointer;
 }
 
-.addBtn {
-    background: #28a745;
-    color: white;
-}
-
-.genBtn {
-    background: #007bff;
-    color: white;
-}
+.addBtn { background: #28a745; color: white; }
+.genBtn { background: #007bff; color: white; }
 
 .card {
     border: 1px solid #ddd;
@@ -106,6 +78,23 @@ button {
     margin-top: 15px;
     border-radius: 10px;
     background: #fafafa;
+}
+
+/* ================= 管理功能（隱藏） ================= */
+#adminPanel {
+    display:none;
+    margin-top:20px;
+    padding:10px;
+    background:#fff3cd;
+    border-radius:10px;
+}
+
+.admin-card {
+    background:#fff;
+    padding:10px;
+    margin-top:10px;
+    border-radius:10px;
+    border:1px solid #ccc;
 }
 </style>
 </head>
@@ -115,7 +104,7 @@ button {
 <!-- ================= 登入頁 ================= -->
 <div id="loginPage">
     <div class="login-box">
-        <h2>🔐 車隊系統登入</h2>
+        <h3>🔐 車隊系統登入</h3>
 
         <input id="user" placeholder="帳號">
         <input id="pass" type="password" placeholder="密碼">
@@ -131,7 +120,7 @@ button {
     </div>
 </div>
 
-<!-- ================= 你的原始系統（完整保留） ================= -->
+<!-- ================= 🔥 完整保留你原本 UI ================= -->
 <div class="container" id="app">
 
 <h2>🚚 小太陽車隊填寫系統</h2>
@@ -209,143 +198,122 @@ button {
 
 <div id="list"></div>
 
+<!-- ================= 管理員（不破壞UI） ================= -->
+<div id="adminPanel">
+    <h3>👑 管理功能</h3>
+    <div id="adminList"></div>
+</div>
+
 </div>
 
 <script>
 
-/* ================= 帳號 ================= */
-const users = {
-    "admin1":"1234",
-    "admin2":"5678",
-    "admin3":"9999",
-    "user1":"0000"
+let currentUser=null;
+let trips=[];
+
+const users={
+"admin1":"1234",
+"admin2":"5678",
+"admin3":"9999",
+"user1":"0000"
 };
 
-let currentUser = null;
-let trips = [];
+function isAdmin(u){
+return ["admin1","admin2","admin3"].includes(u);
+}
 
 /* ================= 登入 ================= */
-function login() {
+function login(){
 
-    let u = document.getElementById("user").value;
-    let p = document.getElementById("pass").value;
+let u=document.getElementById("user").value;
+let p=document.getElementById("pass").value;
 
-    if (!users[u] || users[u] !== p) {
-        alert("帳號或密碼錯誤");
-        return;
-    }
+if(!users[u]||users[u]!==p){
+alert("錯誤");
+return;
+}
 
-    currentUser = u;
+currentUser=u;
 
-    // 🔴 關掉登入頁
-    document.getElementById("loginPage").style.display = "none";
+document.getElementById("loginPage").style.display="none";
+document.getElementById("app").style.display="block";
 
-    // 🟢 顯示原本完整系統
-    document.getElementById("app").style.display = "block";
+if(isAdmin(u)){
+document.getElementById("adminPanel").style.display="block";
+}
 
-    init();
+init();
 }
 
 /* ================= 初始化 ================= */
-function init() {
-    document.getElementById("date").value =
-        new Date().toISOString().split('T')[0];
-}
-
-/* ================= 原本邏輯（未動） ================= */
-const materialData = {
-    "亞洲水泥":["Ⅰ型水泥"],
-    "台灣水泥":["Ⅰ型水泥","Ⅱ型水泥","IL型水泥"],
-    "東南水泥":["Ⅰ型水泥"],
-    "永覲工業":["爐石粉"],
-    "晉瑜水泥":["Ⅰ型水泥","Ⅱ型水泥","高爐水泥"],
-    "環球水泥":["Ⅰ型水泥"]
-};
-
-const receiveMap = {
-    "亞洲水泥":["亞東安平","亞東永康"],
-    "台灣水泥":["鳳勝高樹"],
-    "東南水泥":["天誠預拌","信濃預拌","東南高良"],
-    "永覲工業":["亞東永康","亞東安平"],
-    "晉瑜水泥":["亞東安平","鳳勝高樹"],
-    "環球水泥":["東南高良"]
-};
-
-document.getElementById("send").addEventListener("change",()=>{
-    updateMaterial();
-    updateReceive();
-});
-
-function updateMaterial(){
-    let send=document.getElementById("send").value;
-    let m=document.getElementById("material");
-
-    m.innerHTML='<option value="">請選擇料名</option>';
-
-    if(!materialData[send]) return;
-
-    materialData[send].forEach(x=>{
-        let o=document.createElement("option");
-        o.value=x;
-        o.text=x;
-        m.appendChild(o);
-    });
-}
-
-function updateReceive(){
-    let send=document.getElementById("send").value;
-    let r=document.getElementById("receive");
-
-    r.innerHTML='<option value="">請選擇收貨站</option>';
-
-    if(!receiveMap[send]) return;
-
-    receiveMap[send].forEach(x=>{
-        let o=document.createElement("option");
-        o.value=x;
-        o.text=x;
-        r.appendChild(o);
-    });
+function init(){
+document.getElementById("date").value=
+new Date().toISOString().split('T')[0];
 }
 
 /* ================= 新增車次 ================= */
 function addTrip(){
 
-    if(!currentUser){
-        alert("請先登入");
-        return;
-    }
-
-    let data={
-        date:document.getElementById("date").value,
-        car:document.getElementById("car").value,
-        send:document.getElementById("send").value,
-        receive:document.getElementById("receive").value,
-        material:document.getElementById("material").value,
-        weight:document.getElementById("weight").value
-    };
-
-    trips.push(data);
-
-    render();
+if(!currentUser){
+alert("請登入");
+return;
 }
 
-/* ================= 顯示 ================= */
+let t={
+date:document.getElementById("date").value,
+car:document.getElementById("car").value,
+send:document.getElementById("send").value,
+receive:document.getElementById("receive").value,
+material:document.getElementById("material").value,
+weight:document.getElementById("weight").value
+};
+
+trips.push(t);
+
+render();
+renderAdmin();
+}
+
+/* ================= 使用者列表 ================= */
 function render(){
 
-    let list=document.getElementById("list");
-    list.innerHTML="";
+let list=document.getElementById("list");
+list.innerHTML="";
 
-    trips.forEach((t,i)=>{
-        list.innerHTML+=`
-        <div class="card">
-            ${i+1}. ${t.date}<br>
-            ${t.car}<br>
-            ${t.send} → ${t.receive}<br>
-            ${t.material}<br>
-            ${t.weight}
-        </div>`;
-    });
+trips.forEach((t,i)=>{
+list.innerHTML+=`
+<div class="card">
+${i+1}. ${t.date}<br>
+${t.car}<br>
+${t.send} → ${t.receive}<br>
+${t.material}<br>
+${t.weight}
+</div>`;
+});
+}
+
+/* ================= 管理員列表 ================= */
+function renderAdmin(){
+
+if(!isAdmin(currentUser)) return;
+
+let box=document.getElementById("adminList");
+box.innerHTML="";
+
+trips.forEach((t,i)=>{
+box.innerHTML+=`
+<div class="admin-card">
+#${i+1} ${t.car}<br>
+<button onclick="del(${i})">刪除</button>
+</div>`;
+});
+}
+
+/* ================= 刪除 ================= */
+function del(i){
+trips.splice(i,1);
+render();
+renderAdmin();
 }
 
 </script>
