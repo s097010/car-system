@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#007bff">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>小太陽車隊填寫系統</title>
+
+<!-- ================= PWA 必要設定 ================= -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#007bff">
 
 <style>
 body {
@@ -89,7 +91,7 @@ button {
 <div class="container">
     <h2>🚚 小太陽車隊填寫系統</h2>
 
-    <!-- ================= 日期 ================= -->
+    <!-- 日期 -->
     <label>📅 日期</label>
     <input type="date" id="date">
 
@@ -134,6 +136,7 @@ button {
     <hr>
 
     <h3>🧴 尿素補給</h3>
+
     <label>尿素品牌</label>
     <select id="ureaBrand">
         <option value="" disabled selected>請選擇尿素品牌</option>
@@ -150,6 +153,7 @@ button {
     <hr>
 
     <h3>⛽ 油料補給</h3>
+
     <label>加油站</label>
     <select id="fuelStation">
         <option value="" disabled selected>請選擇加油站</option>
@@ -193,12 +197,10 @@ const receiveMap = {
 
 let trips = [];
 
-/*
-========================================================
-📅 日期初始化（系統日期）
-========================================================
-*/
+/* ================= 初始化 ================= */
 window.onload = function () {
+
+    // 📅 預設今天日期
     let today = new Date().toISOString().split('T')[0];
     document.getElementById("date").value = today;
 
@@ -206,11 +208,18 @@ window.onload = function () {
     updateReceive();
 };
 
+/* ================= service worker（PWA核心） ================= */
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js");
+}
+
+/* ================= 發貨站變更 ================= */
 document.getElementById("send").addEventListener("change", function () {
     updateMaterial();
     updateReceive();
 });
 
+/* ================= 料名 ================= */
 function updateMaterial() {
     let send = document.getElementById("send").value;
     let material = document.getElementById("material");
@@ -227,6 +236,7 @@ function updateMaterial() {
     });
 }
 
+/* ================= 收貨站 ================= */
 function updateReceive() {
     let send = document.getElementById("send").value;
     let receive = document.getElementById("receive");
@@ -243,6 +253,7 @@ function updateReceive() {
     });
 }
 
+/* ================= 新增車次 ================= */
 function addTrip() {
 
     let date = document.getElementById("date").value;
@@ -272,16 +283,15 @@ function addTrip() {
     }
 
     trips.push({
-        date,
-        car, send, receive, material, weight,
+        date, car, send, receive, material, weight,
         ureaBrand, ureaL, ureaMoney,
         fuelStation, fuelL, fuelMoney
     });
 
     renderList();
-    document.getElementById("weight").value = "";
 }
 
+/* ================= 顯示 ================= */
 function renderList() {
     let list = document.getElementById("list");
     list.innerHTML = "";
@@ -289,7 +299,7 @@ function renderList() {
     trips.forEach((t, i) => {
         list.innerHTML += `
         <div class="card">
-            📅 日期：${t.date}<br>
+            📅 ${t.date}<br>
             🚚 車次 ${i + 1}<br>
             車牌：${t.car}<br>
             發貨：${t.send}<br>
@@ -303,6 +313,7 @@ function renderList() {
     });
 }
 
+/* ================= 匯出 ================= */
 function generateAll() {
 
     if (trips.length === 0) {
@@ -313,7 +324,7 @@ function generateAll() {
     let text = "";
 
     trips.forEach((t, i) => {
-        text += `日期：${t.date}
+        text += `📅 ${t.date}
 車次 ${i + 1}
 車牌：${t.car}
 發貨：${t.send}
