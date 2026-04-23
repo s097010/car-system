@@ -5,9 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>小太陽車隊系統</title>
 
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#007bff">
-
 <style>
 body {
     font-family: Arial;
@@ -15,52 +12,39 @@ body {
     padding: 15px;
 }
 
-/* ================= 登入頁 ================= */
-.login-box {
+/* ============ 登入畫面 ============ */
+#loginPage {
     max-width: 400px;
-    margin: 80px auto;
+    margin: 100px auto;
     background: white;
     padding: 20px;
     border-radius: 15px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
 
-input {
-    width: 100%;
-    padding: 12px;
-    margin-top: 10px;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-}
-
-button {
-    width: 100%;
-    padding: 12px;
-    margin-top: 15px;
-    border: none;
-    border-radius: 10px;
-    background: #007bff;
-    color: white;
-    font-size: 16px;
-}
-
-/* ================= 主系統 ================= */
-.container {
+/* ============ 主系統 ============ */
+#app {
+    display: none; /* 🔴 一開始完全隱藏 */
     max-width: 520px;
     margin: auto;
     background: white;
     padding: 20px;
     border-radius: 15px;
-    display: none; /* 🔴 未登入隱藏 */
 }
 
-label { font-weight: bold; }
-select, input { width: 100%; padding: 10px; margin-top: 5px; }
-
-.card {
-    background: #f9f9f9;
+input, select {
+    width: 100%;
     padding: 10px;
+    margin-top: 8px;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
     margin-top: 10px;
+    background: #007bff;
+    color: white;
+    border: none;
     border-radius: 10px;
 }
 </style>
@@ -68,29 +52,32 @@ select, input { width: 100%; padding: 10px; margin-top: 5px; }
 
 <body>
 
-<!-- ================= 登入畫面 ================= -->
-<div class="login-box" id="loginBox">
-    <h2>🔐 車隊系統登入</h2>
+<!-- ================= 登入頁 ================= -->
+<div id="loginPage">
+    <h2>🔐 登入系統</h2>
 
-    <input id="username" placeholder="帳號">
-    <input id="password" type="password" placeholder="密碼">
+    <input id="user" placeholder="帳號">
+    <input id="pass" type="password" placeholder="密碼">
 
     <button onclick="login()">登入</button>
+
+    <p style="font-size:12px;color:gray;">
+        admin1/1234<br>
+        admin2/5678<br>
+        admin3/9999<br>
+        user1/0000
+    </p>
 </div>
 
 <!-- ================= 主系統 ================= -->
-<div class="container" id="mainApp">
+<div id="app">
 
-<h2>🚚 小太陽車隊系統</h2>
-
-<label>📅 日期</label>
-<input type="date" id="date">
+<h2>🚚 車隊系統</h2>
 
 <label>車牌</label>
 <select id="car">
     <option>XO-249</option>
     <option>KLE-9999</option>
-    <option>KLH-1568</option>
 </select>
 
 <label>發貨站</label>
@@ -99,16 +86,10 @@ select, input { width: 100%; padding: 10px; margin-top: 5px; }
     <option>台灣水泥</option>
 </select>
 
-<label>收貨站</label>
-<select id="receive"></select>
-
-<label>料名</label>
-<select id="material"></select>
-
 <label>噸數</label>
 <input id="weight">
 
-<button onclick="addTrip()">➕ 新增車次</button>
+<button onclick="add()">新增</button>
 
 <div id="list"></div>
 
@@ -116,50 +97,43 @@ select, input { width: 100%; padding: 10px; margin-top: 5px; }
 
 <script>
 
-/* ================= 帳號資料 ================= */
+/* ================= 帳號 ================= */
 const users = {
-    "admin1": {password:"1234", role:"admin"},
-    "admin2": {password:"5678", role:"admin"},
-    "admin3": {password:"9999", role:"admin"},
-    "user1":  {password:"0000", role:"user"}
+    "admin1":"1234",
+    "admin2":"5678",
+    "admin3":"9999",
+    "user1":"0000"
 };
 
-let currentUser = null;
-let trips = [];
+let loginUser = null;
+let data = [];
 
 /* ================= 登入 ================= */
 function login() {
 
-    let u = document.getElementById("username").value;
-    let p = document.getElementById("password").value;
+    let u = document.getElementById("user").value;
+    let p = document.getElementById("pass").value;
 
-    if (!users[u] || users[u].password !== p) {
+    if (!users[u] || users[u] !== p) {
         alert("帳號或密碼錯誤");
         return;
     }
 
-    currentUser = users[u];
+    loginUser = u;
 
-    document.getElementById("loginBox").style.display = "none";
-    document.getElementById("mainApp").style.display = "block";
+    // 🔴 隱藏登入頁
+    document.getElementById("loginPage").style.display = "none";
 
-    alert("登入成功：" + currentUser.role);
+    // 🟢 顯示主系統
+    document.getElementById("app").style.display = "block";
 
-    init();
+    alert("登入成功：" + u);
 }
 
-/* ================= 初始化 ================= */
-function init() {
+/* ================= 新增 ================= */
+function add() {
 
-    document.getElementById("date").value =
-        new Date().toISOString().split('T')[0];
-
-}
-
-/* ================= 新增車次（登入後才可） ================= */
-function addTrip() {
-
-    if (!currentUser) {
+    if (!loginUser) {
         alert("請先登入");
         return;
     }
@@ -168,12 +142,7 @@ function addTrip() {
     let send = document.getElementById("send").value;
     let weight = document.getElementById("weight").value;
 
-    if (!car || !send || !weight) {
-        alert("請填資料");
-        return;
-    }
-
-    trips.push({car, send, weight});
+    data.push({car, send, weight});
 
     render();
 }
@@ -184,13 +153,10 @@ function render() {
     let list = document.getElementById("list");
     list.innerHTML = "";
 
-    trips.forEach((t,i)=>{
+    data.forEach((d,i)=>{
         list.innerHTML += `
-        <div class="card">
-            車次 ${i+1}<br>
-            車牌：${t.car}<br>
-            發貨：${t.send}<br>
-            噸數：${t.weight}
+        <div style="margin-top:10px;padding:10px;background:#eee;border-radius:10px;">
+            ${i+1}. ${d.car} / ${d.send} / ${d.weight}
         </div>`;
     });
 }
