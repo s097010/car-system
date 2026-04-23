@@ -12,7 +12,7 @@ body {
     padding: 15px;
 }
 
-/* ================= 登入遮罩（不影響UI） ================= */
+/* ================= 登入遮罩 ================= */
 #loginPage {
     position: fixed;
     inset: 0;
@@ -31,7 +31,7 @@ body {
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
 
-/* ================= 🔥 完全保留你原本UI ================= */
+/* ================= 你原本 UI（完全不動） ================= */
 .container {
     max-width: 520px;
     margin: auto;
@@ -80,7 +80,7 @@ button {
     background: #fafafa;
 }
 
-/* ================= 管理功能（隱藏） ================= */
+/* ================= 管理員區 ================= */
 #adminPanel {
     display:none;
     margin-top:20px;
@@ -101,7 +101,7 @@ button {
 
 <body>
 
-<!-- ================= 登入頁 ================= -->
+<!-- ================= 登入 ================= -->
 <div id="loginPage">
     <div class="login-box">
         <h3>🔐 車隊系統登入</h3>
@@ -120,7 +120,7 @@ button {
     </div>
 </div>
 
-<!-- ================= 🔥 完整保留你原本 UI ================= -->
+<!-- ================= 主系統（UI完全保留） ================= -->
 <div class="container" id="app">
 
 <h2>🚚 小太陽車隊填寫系統</h2>
@@ -198,9 +198,9 @@ button {
 
 <div id="list"></div>
 
-<!-- ================= 管理員（不破壞UI） ================= -->
+<!-- ================= 管理員區 ================= -->
 <div id="adminPanel">
-    <h3>👑 管理功能</h3>
+    <h3>👑 管理後台</h3>
     <div id="adminList"></div>
 </div>
 
@@ -208,112 +208,120 @@ button {
 
 <script>
 
-let currentUser=null;
-let trips=[];
+let currentUser = null;
+let trips = [];
 
-const users={
-"admin1":"1234",
-"admin2":"5678",
-"admin3":"9999",
-"user1":"0000"
+const users = {
+    "admin1":"1234",
+    "admin2":"5678",
+    "admin3":"9999",
+    "user1":"0000"
 };
 
 function isAdmin(u){
-return ["admin1","admin2","admin3"].includes(u);
+    return ["admin1","admin2","admin3"].includes(u);
 }
 
 /* ================= 登入 ================= */
 function login(){
 
-let u=document.getElementById("user").value;
-let p=document.getElementById("pass").value;
+    let u = document.getElementById("user").value;
+    let p = document.getElementById("pass").value;
 
-if(!users[u]||users[u]!==p){
-alert("錯誤");
-return;
-}
+    if(!users[u] || users[u] !== p){
+        alert("帳號或密碼錯誤");
+        return;
+    }
 
-currentUser=u;
+    currentUser = u;
 
-document.getElementById("loginPage").style.display="none";
-document.getElementById("app").style.display="block";
+    document.getElementById("loginPage").style.display = "none";
+    document.getElementById("app").style.display = "block";
 
-if(isAdmin(u)){
-document.getElementById("adminPanel").style.display="block";
-}
+    init();
 
-init();
+    updateAdminPanel();
+    render();
 }
 
 /* ================= 初始化 ================= */
 function init(){
-document.getElementById("date").value=
-new Date().toISOString().split('T')[0];
+    document.getElementById("date").value =
+        new Date().toISOString().split('T')[0];
 }
 
 /* ================= 新增車次 ================= */
 function addTrip(){
 
-if(!currentUser){
-alert("請登入");
-return;
-}
+    if(!currentUser){
+        alert("請先登入");
+        return;
+    }
 
-let t={
-date:document.getElementById("date").value,
-car:document.getElementById("car").value,
-send:document.getElementById("send").value,
-receive:document.getElementById("receive").value,
-material:document.getElementById("material").value,
-weight:document.getElementById("weight").value
-};
+    let data = {
+        date: document.getElementById("date").value,
+        car: document.getElementById("car").value,
+        send: document.getElementById("send").value,
+        receive: document.getElementById("receive").value,
+        material: document.getElementById("material").value,
+        weight: document.getElementById("weight").value
+    };
 
-trips.push(t);
+    trips.push(data);
 
-render();
-renderAdmin();
+    render();
+    updateAdminPanel();
 }
 
 /* ================= 使用者列表 ================= */
 function render(){
 
-let list=document.getElementById("list");
-list.innerHTML="";
+    let list = document.getElementById("list");
+    list.innerHTML = "";
 
-trips.forEach((t,i)=>{
-list.innerHTML+=`
-<div class="card">
-${i+1}. ${t.date}<br>
-${t.car}<br>
-${t.send} → ${t.receive}<br>
-${t.material}<br>
-${t.weight}
-</div>`;
-});
+    trips.forEach((t,i)=>{
+        list.innerHTML += `
+        <div class="card">
+            ${i+1}. ${t.date}<br>
+            ${t.car}<br>
+            ${t.send} → ${t.receive}<br>
+            ${t.material}<br>
+            ${t.weight}
+        </div>`;
+    });
 }
 
-/* ================= 管理員列表 ================= */
-function renderAdmin(){
+/* ================= 管理員後台（修正核心） ================= */
+function updateAdminPanel(){
 
-if(!isAdmin(currentUser)) return;
+    let panel = document.getElementById("adminPanel");
+    let box = document.getElementById("adminList");
 
-let box=document.getElementById("adminList");
-box.innerHTML="";
+    box.innerHTML = "";
 
-trips.forEach((t,i)=>{
-box.innerHTML+=`
-<div class="admin-card">
-#${i+1} ${t.car}<br>
-<button onclick="del(${i})">刪除</button>
-</div>`;
-});
+    if(!isAdmin(currentUser)){
+        panel.style.display = "none";
+        return;
+    }
+
+    panel.style.display = "block";
+
+    trips.forEach((t,i)=>{
+        box.innerHTML += `
+        <div class="admin-card">
+            <b>#${i+1}</b><br>
+            ${t.car} / ${t.send}<br>
+            ${t.date}<br>
+            <button onclick="delTrip(${i})">刪除</button>
+        </div>`;
+    });
 }
 
 /* ================= 刪除 ================= */
-function del(i){
-trips.splice(i,1);
-render();
-renderAdmin();
+function delTrip(i){
+    trips.splice(i,1);
+    render();
+    updateAdminPanel();
 }
 
 </script>
