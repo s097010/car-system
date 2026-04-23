@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>小太陽車隊填寫系統</title>
 
-<!-- ================= PWA 必要設定 ================= -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#007bff">
 
@@ -87,109 +86,112 @@ button {
 </head>
 
 <body>
+
 <div class="container">
 
 <!-- ================= 登入區 ================= -->
-<h3>🔐 登入</h3>
+<h3>🔐 登入系統</h3>
 
-<label>帳號</label>
+<label>身份</label>
 <select id="role">
     <option value="" disabled selected>請選擇身份</option>
     <option value="admin">管理員</option>
     <option value="driver">司機</option>
 </select>
 
-<button onclick="login()" class="addBtn">登入系統</button>
+<button class="addBtn" onclick="login()">登入</button>
 
 <hr>
-<div class="container">
-    <h2>🚚 小太陽車隊填寫系統</h2>
 
-    <!-- 日期 -->
-    <label>📅 日期</label>
-    <input type="date" id="date">
+<h2>🚚 小太陽車隊填寫系統</h2>
 
-    <!-- 車牌 -->
-    <label>車牌</label>
-    <select id="car">
-        <option value="" disabled selected>請選擇車牌</option>
-        <option>XO-249</option>
-        <option>KLE-9999</option>
-        <option>KLH-1568</option>
-        <option>KLG-6028</option>
-    </select>
+<!-- 日期 -->
+<label>📅 日期</label>
+<input type="date" id="date">
 
-    <!-- 發貨站 -->
-    <label>發貨站</label>
-    <select id="send">
-        <option value="" disabled selected>請選擇發貨站</option>
-        <option>亞洲水泥</option>
-        <option>台灣水泥</option>
-        <option>東南水泥</option>
-        <option>永覲工業</option>
-        <option>晉瑜水泥</option>
-        <option>環球水泥</option>
-    </select>
+<!-- 車牌 -->
+<label>車牌</label>
+<select id="car">
+    <option value="" disabled selected>請選擇車牌</option>
+    <option>XO-249</option>
+    <option>KLE-9999</option>
+    <option>KLH-1568</option>
+    <option>KLG-6028</option>
+</select>
 
-    <!-- 收貨站 -->
-    <label>收貨站</label>
-    <select id="receive">
-        <option value="" disabled selected>請選擇收貨站</option>
-    </select>
+<!-- 發貨站 -->
+<label>發貨站</label>
+<select id="send">
+    <option value="" disabled selected>請選擇發貨站</option>
+    <option>亞洲水泥</option>
+    <option>台灣水泥</option>
+    <option>東南水泥</option>
+    <option>永覲工業</option>
+    <option>晉瑜水泥</option>
+    <option>環球水泥</option>
+</select>
 
-    <!-- 料名 -->
-    <label>料名</label>
-    <select id="material">
-        <option value="" disabled selected>請先選發貨站</option>
-    </select>
+<!-- 收貨站 -->
+<label>收貨站</label>
+<select id="receive">
+    <option value="" disabled selected>請選擇收貨站</option>
+</select>
 
-    <!-- 噸數 -->
-    <label>噸數</label>
-    <input type="number" id="weight" placeholder="請輸入噸數">
+<!-- 料名 -->
+<label>料名</label>
+<select id="material">
+    <option value="" disabled selected>請先選發貨站</option>
+</select>
 
-    <hr>
+<!-- 噸數 -->
+<label>噸數</label>
+<input type="number" id="weight">
 
-    <h3>🧴 尿素補給</h3>
+<hr>
 
-    <label>尿素品牌</label>
-    <select id="ureaBrand">
-        <option value="" disabled selected>請選擇尿素品牌</option>
-        <option>品牌A</option>
-        <option>品牌B</option>
-    </select>
+<h3>🧴 尿素</h3>
+<label>品牌</label>
+<select id="ureaBrand">
+    <option value="" disabled selected>請選擇</option>
+    <option>品牌A</option>
+    <option>品牌B</option>
+</select>
 
-    <label>尿素公升數</label>
-    <input type="number" id="ureaL">
+<label>公升</label>
+<input type="number" id="ureaL">
 
-    <label>尿素金額</label>
-    <input type="number" id="ureaMoney">
+<label>金額</label>
+<input type="number" id="ureaMoney">
 
-    <hr>
+<hr>
 
-    <h3>⛽ 油料補給</h3>
+<h3>⛽ 油料</h3>
+<label>加油站</label>
+<select id="fuelStation">
+    <option value="" disabled selected>請選擇</option>
+    <option>中油</option>
+    <option>速邁樂</option>
+    <option>台糖</option>
+</select>
 
-    <label>加油站</label>
-    <select id="fuelStation">
-        <option value="" disabled selected>請選擇加油站</option>
-        <option>中油</option>
-        <option>速邁樂</option>
-        <option>台糖</option>
-    </select>
+<label>公升</label>
+<input type="number" id="fuelL">
 
-    <label>油料公升數</label>
-    <input type="number" id="fuelL">
+<label>金額</label>
+<input type="number" id="fuelMoney">
 
-    <label>油料金額</label>
-    <input type="number" id="fuelMoney">
+<button class="addBtn" onclick="addTrip()">➕ 新增車次</button>
+<button class="genBtn" onclick="generateAll()">📋 產生全部</button>
 
-    <button class="addBtn" onclick="addTrip()">➕ 新增車次</button>
-    <button class="genBtn" onclick="generateAll()">📋 產生全部內容</button>
+<div id="list"></div>
+<div class="result" id="result"></div>
 
-    <div id="list"></div>
-    <div class="result" id="result"></div>
 </div>
 
 <script>
+
+let userRole = null;
+let trips = [];
 
 const materialData = {
     "亞洲水泥": ["Ⅰ型水泥"],
@@ -209,12 +211,18 @@ const receiveMap = {
     "環球水泥": ["東南高良"]
 };
 
-let trips = [];
+/* ================= 登入 ================= */
+function login() {
+    userRole = document.getElementById("role").value;
+    if (!userRole) {
+        alert("請選擇身份");
+        return;
+    }
+    alert("登入成功：" + userRole);
+}
 
 /* ================= 初始化 ================= */
 window.onload = function () {
-
-    // 📅 預設今天日期
     let today = new Date().toISOString().split('T')[0];
     document.getElementById("date").value = today;
 
@@ -222,12 +230,6 @@ window.onload = function () {
     updateReceive();
 };
 
-/* ================= service worker（PWA核心） ================= */
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js");
-}
-
-/* ================= 發貨站變更 ================= */
 document.getElementById("send").addEventListener("change", function () {
     updateMaterial();
     updateReceive();
@@ -270,24 +272,20 @@ function updateReceive() {
 /* ================= 新增車次 ================= */
 function addTrip() {
 
-    let date = document.getElementById("date").value;
+    if (!userRole) {
+        alert("請先登入");
+        return;
+    }
 
+    let date = document.getElementById("date").value;
     let car = document.getElementById("car").value;
     let send = document.getElementById("send").value;
     let receive = document.getElementById("receive").value;
     let material = document.getElementById("material").value;
     let weight = document.getElementById("weight").value;
 
-    let ureaBrand = document.getElementById("ureaBrand").value;
-    let ureaL = document.getElementById("ureaL").value;
-    let ureaMoney = document.getElementById("ureaMoney").value;
-
-    let fuelStation = document.getElementById("fuelStation").value;
-    let fuelL = document.getElementById("fuelL").value;
-    let fuelMoney = document.getElementById("fuelMoney").value;
-
     if (!date || !car || !send || !receive || !material || !weight) {
-        alert("請完整填寫資料");
+        alert("請完整填寫");
         return;
     }
 
@@ -297,9 +295,7 @@ function addTrip() {
     }
 
     trips.push({
-        date, car, send, receive, material, weight,
-        ureaBrand, ureaL, ureaMoney,
-        fuelStation, fuelL, fuelMoney
+        date, car, send, receive, material, weight
     });
 
     renderList();
@@ -307,6 +303,7 @@ function addTrip() {
 
 /* ================= 顯示 ================= */
 function renderList() {
+
     let list = document.getElementById("list");
     list.innerHTML = "";
 
@@ -314,15 +311,12 @@ function renderList() {
         list.innerHTML += `
         <div class="card">
             📅 ${t.date}<br>
-            🚚 車次 ${i + 1}<br>
+            🚚 車次 ${i+1}<br>
             車牌：${t.car}<br>
             發貨：${t.send}<br>
             收貨：${t.receive}<br>
             料名：${t.material}<br>
-            噸數：${t.weight} 噸<br><br>
-
-            🧴 尿素：${t.ureaBrand || "-"} / ${t.ureaL || 0}L / $${t.ureaMoney || 0}<br>
-            ⛽ 油料：${t.fuelStation || "-"} / ${t.fuelL || 0}L / $${t.fuelMoney || 0}
+            噸數：${t.weight}
         </div>`;
     });
 }
@@ -331,23 +325,20 @@ function renderList() {
 function generateAll() {
 
     if (trips.length === 0) {
-        alert("沒有車次");
+        alert("沒有資料");
         return;
     }
 
     let text = "";
 
-    trips.forEach((t, i) => {
-        text += `📅 ${t.date}
-車次 ${i + 1}
+    trips.forEach((t,i)=>{
+        text += `日期：${t.date}
+車次 ${i+1}
 車牌：${t.car}
 發貨：${t.send}
 收貨：${t.receive}
 料名：${t.material}
-噸數：${t.weight} 噸
-
-尿素：${t.ureaBrand || "-"} / ${t.ureaL || 0}L / $${t.ureaMoney || 0}
-油料：${t.fuelStation || "-"} / ${t.fuelL || 0}L / $${t.fuelMoney || 0}
+噸數：${t.weight}
 
 `;
     });
